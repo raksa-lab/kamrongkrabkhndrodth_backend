@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: bookstore
       POSTGRES_PASSWORD: bookstore
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - bookstore_pgdata:/var/lib/postgresql/data
 volumes:
