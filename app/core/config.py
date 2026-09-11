@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-this-in-production"
     jwt_expire_minutes: int = 480
     upload_dir: str = "uploads"
+    admin_email: str = "admin@example.com"
+    admin_password: str = "change-me"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 @lru_cache
