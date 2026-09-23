@@ -9,6 +9,17 @@ class Settings(BaseSettings):
     admin_email: str = "admin@example.com"
     admin_password: str = "change-me"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    supabase_url: str = ""
+    supabase_service_key: str = ""
+    supabase_bucket: str = "books"
+
+    # MinIO / S3 Storage Settings
+    minio_endpoint: str = ""
+    minio_access_key: str = ""
+    minio_secret_key: str = ""
+    minio_bucket: str = "books"
+    minio_secure: bool = True
+    minio_public_url: str = ""
 
     @property
     def cors_origins_list(self) -> list[str]:
