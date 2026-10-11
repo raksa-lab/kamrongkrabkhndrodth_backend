@@ -12,7 +12,7 @@ def list_books(search: str | None = None, category: str | None = None, availabil
     query = db.query(Book)
     if search:
         term = f"%{search}%"
-        query = query.filter(or_(Book.title.ilike(term), Book.author.ilike(term), Book.description.ilike(term)))
+        query = query.filter(or_(Book.title.ilike(term), Book.author.ilike(term), Book.description.ilike(term), Book.category.ilike(term)))
     if category:
         query = query.filter(Book.category == category)
     if availability:
