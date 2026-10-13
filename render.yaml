@@ -23,6 +23,8 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: JWT_EXPIRE_MINUTES
+        value: "480"
       - key: CORS_ORIGINS
         value: "http://localhost:3000,http://127.0.0.1:3000,https://kamrongkrabkhndrodth.vercel.app"
       - key: ADMIN_EMAIL

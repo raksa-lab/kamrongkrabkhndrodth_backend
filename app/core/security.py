@@ -11,9 +11,16 @@ def hash_password(value: str) -> str:
 def verify_password(value: str, hashed: str) -> bool:
     return password_hash.verify(value, hashed)
 
-def create_token(subject: str) -> str:
+def create_token(subject: str, expire_hours: int = 8) -> str:
+    """Create a signed JWT token valid for exactly 8 hours (480 minutes)."""
     settings = get_settings()
-    payload = {"sub": subject, "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)}
+    expire_minutes = settings.jwt_expire_minutes if settings.jwt_expire_minutes > 0 else (expire_hours * 60)
+    expire_time = datetime.now(timezone.utc) + timedelta(minutes=expire_minutes)
+    payload = {
+        "sub": subject,
+        "iat": datetime.now(timezone.utc),
+        "exp": expire_time,
+    }
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
 def decode_token(token: str) -> dict:
