@@ -10,7 +10,15 @@ from app.models.admin_user import AdminUser
 
 settings = get_settings()
 app = FastAPI(title="Readwell Book Store API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins_list, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+cors_origins = settings.cors_origins_list
+allow_wildcard = "*" in cors_origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if allow_wildcard else cors_origins,
+    allow_credentials=not allow_wildcard,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
 app.include_router(auth.router)

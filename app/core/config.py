@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     admin_email: str = "admin@example.com"
     admin_password: str = "change-me"
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,https://kamrongkrabkhndrodth.vercel.app"
     supabase_url: str = ""
     supabase_service_key: str = ""
     supabase_bucket: str = "books"
