@@ -1,3 +1,10 @@
+databases:
+  - name: bookstore-db
+    databaseName: bookstore
+    user: bookstore
+    plan: free
+    region: singapore
+
 services:
   - type: web
     name: kamrongkrabkhndrodth-backend
@@ -11,12 +18,14 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: bookstore-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
         value: "http://localhost:3000,http://127.0.0.1:3000,https://kamrongkrabkhndrodth.vercel.app"
       - key: ADMIN_EMAIL
-        sync: false
+        value: "admin@example.com"
       - key: ADMIN_PASSWORD
-        sync: false
+        value: "AdminPassword123!"
