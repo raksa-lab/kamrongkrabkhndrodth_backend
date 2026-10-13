@@ -24,7 +24,7 @@ class BookUpdate(BaseModel):
     availability: Availability | None = None
 
 class BookOut(BookBase):
-    id: int
+    id: str
     slug: str
     model_config = ConfigDict(from_attributes=True)
 

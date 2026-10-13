@@ -39,7 +39,7 @@ def create_book(payload: BookCreate, db: Session = Depends(get_db)):
     return book
 
 @router.put("/{book_id}", response_model=BookOut)
-def update_book(book_id: int, payload: BookUpdate, db: Session = Depends(get_db)):
+def update_book(book_id: str, payload: BookUpdate, db: Session = Depends(get_db)):
     book = db.get(Book, book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
@@ -50,7 +50,7 @@ def update_book(book_id: int, payload: BookUpdate, db: Session = Depends(get_db)
     return book
 
 @router.delete("/{book_id}", status_code=204)
-def delete_book(book_id: int, db: Session = Depends(get_db)):
+def delete_book(book_id: str, db: Session = Depends(get_db)):
     book = db.get(Book, book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")

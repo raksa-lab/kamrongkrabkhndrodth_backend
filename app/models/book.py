@@ -1,4 +1,5 @@
 import enum
+import uuid
 from datetime import datetime
 from decimal import Decimal
 from sqlalchemy import DateTime, Enum, Numeric, String, Text, func
@@ -12,7 +13,7 @@ class Availability(str, enum.Enum):
 
 class Book(Base):
     __tablename__ = "books"
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     slug: Mapped[str] = mapped_column(String(180), unique=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
     author: Mapped[str] = mapped_column(String(255), default="")
