@@ -39,6 +39,16 @@ def initialize_database():
     finally:
         db.close()
 
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "service": "Readwell Book Store API",
+        "docs": "/docs",
+        "health": "/api/health",
+    }
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
