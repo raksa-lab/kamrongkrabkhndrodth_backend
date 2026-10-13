@@ -4,11 +4,15 @@ from pathlib import Path
 from uuid import uuid4
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 import httpx
+from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_admin
 from app.core.config import get_settings
+from app.db.session import get_db
+from app.models.uploaded_file import UploadedFile
 
 router = APIRouter(prefix="/api/admin", tags=["uploads"], dependencies=[Depends(get_current_admin)])
 ALLOWED = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB limit
 
 
 def ensure_bucket_public(minio_client, bucket_name: str):
@@ -35,13 +39,16 @@ def ensure_bucket_public(minio_client, bucket_name: str):
 
 
 @router.post("/upload")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db)):
     if file.content_type not in ALLOWED:
         raise HTTPException(status_code=415, detail="Only JPEG, PNG, and WebP images are supported")
     
     settings = get_settings()
     filename = f"{uuid4().hex}{ALLOWED[file.content_type]}"
     content = await file.read()
+
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="Image size exceeds the 10MB limit")
 
     # 1. Primary Cloud Storage: MinIO
     if settings.minio_endpoint and settings.minio_access_key and settings.minio_secret_key:
@@ -101,8 +108,26 @@ async def upload_image(file: UploadFile = File(...)):
         public_url = f"{settings.supabase_url.rstrip('/')}/storage/v1/object/public/{settings.supabase_bucket}/{filename}"
         return {"url": public_url, "filename": filename}
 
-    # 3. Local Storage Fallback (for offline development)
-    directory = Path(settings.upload_dir)
-    directory.mkdir(parents=True, exist_ok=True)
-    (directory / filename).write_bytes(content)
+    # 3. Persistent PostgreSQL Storage (Guarantees images never disappear on Render restarts)
+    existing_file = db.query(UploadedFile).filter(UploadedFile.filename == filename).first()
+    if existing_file:
+        existing_file.data = content
+        existing_file.content_type = file.content_type
+    else:
+        new_file = UploadedFile(
+            filename=filename,
+            content_type=file.content_type,
+            data=content,
+        )
+        db.add(new_file)
+    db.commit()
+
+    # Also save to local disk directory as local cache if writable
+    try:
+        directory = Path(settings.upload_dir)
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / filename).write_bytes(content)
+    except Exception:
+        pass
+
     return {"url": f"/uploads/{filename}", "filename": filename}
