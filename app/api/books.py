@@ -23,7 +23,7 @@ def list_books(search: str | None = None, category: str | None = None, availabil
 
 @router.get("/{slug}", response_model=BookOut)
 def get_book(slug: str, db: Session = Depends(get_db)):
-    book = db.query(Book).filter(Book.slug == slug).first()
+    book = db.query(Book).filter(or_(Book.slug == slug, Book.id == slug)).first()
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
     return book
